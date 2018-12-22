@@ -5,26 +5,27 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
 import { ListPage } from '../pages/list/list';
+import { PrinterTestPage } from '../pages/printer-test/printer-test';
 
 @Component({
-  templateUrl: 'app.html'
+  templateUrl: 'app.html',
+  host: { '(document:keypress)': 'handleKeyboardEvent($event)' },
 })
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
-  rootPage: any = HomePage;
+  rootPage: any = PrinterTestPage;
 
-  pages: Array<{title: string, component: any}>;
+  pages: Array<{ title: string; component: any }>;
 
   constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
     this.initializeApp();
-
     // used for an example of ngFor and navigation
-    this.pages = [
-      { title: 'Home', component: HomePage },
-      { title: 'List', component: ListPage }
-    ];
+    this.pages = [{ title: 'Home', component: HomePage }, { title: 'List', component: ListPage }, { title: 'printer', component: PrinterTestPage }];
+  }
 
+  handleKeyboardEvent(event: KeyboardEvent) {
+    console.log(`${event.key} ${event.keyCode}`);
   }
 
   initializeApp() {
