@@ -4,7 +4,18 @@ import { LoadingController, ToastController } from 'ionic-angular';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { BrowserQRCodeSvgWriter } from '@zxing/library';
-import { Rotations, BarcodesItem, BarsItem, QrCodesItem, LinesItem, ReverseZoneItem, ImagesItem, BoxsItem, TextsItem, Work } from './interfacesLabel';
+import {
+  Rotations,
+  BarcodesItem,
+  BarsItem,
+  QrCodesItem,
+  LinesItem,
+  ReverseZoneItem,
+  ImagesItem,
+  BoxsItem,
+  TextsItem,
+  Work
+} from './interfacesLabel';
 import { DecimalPipe, DatePipe, PercentPipe, CurrencyPipe } from '@angular/common';
 import { isNumber } from 'ionic-angular/util/util';
 
@@ -29,12 +40,12 @@ const alarm = {
         this.timeoutID = undefined;
       }.bind(this),
       20000,
-      null,
+      null
     );
   },
   cancel: function() {
     window.clearTimeout(this.timeoutID);
-  },
+  }
 };
 
 @Injectable()
@@ -52,11 +63,13 @@ export class PrintTsplServiceProvider {
     private dec_pipe: DecimalPipe,
     private date_pipe: DatePipe,
     private per_pipe: PercentPipe,
-    private curr_pipe: CurrencyPipe,
+    private curr_pipe: CurrencyPipe
   ) {}
 
   private dictionary(entity: any, str: string) {
-    let listPar = str.match(/(@)+\w+[.]*\w*[.]*\w*([ ]*[,]{1}[ ]*[nNdDpPcC]{1,1}[ ]*:{1}[ ]*)*([0-9]{1,}.{1}[0-9]{1,}-{1}[0-9]{1,})*([dMLywEaBbhHmsz \\/.\-_])*(([A-Z]{3}[ _]*)*[0-9]{1,}.{1}[1-9]{1,}-{1}[0-9]{1,})*/g); // new RegExp(/(@)+\w/g).// RegExp..Matches(str,  );
+    let listPar = str.match(
+      /(@)+\w+[.]*\w*[.]*\w*([ ]*[,]{1}[ ]*[nNdDpPcC]{1,1}[ ]*:{1}[ ]*)*([0-9]{1,}.{1}[0-9]{1,}-{1}[0-9]{1,})*([dMLywEaBbhHmsz \\/.\-_])*(([A-Z]{3}[ _]*)*[0-9]{1,}.{1}[1-9]{1,}-{1}[0-9]{1,})*(@)+/g
+    ); // new RegExp(/(@)+\w/g).// RegExp..Matches(str,  );
     let str_ = str;
     listPar.forEach(mc => {
       let format = mc
@@ -64,7 +77,10 @@ export class PrintTsplServiceProvider {
         .join('')
         .trim()
         .split(',');
-      let props = format[0].replace('@', '').split('.');
+      let props = format[0]
+        .replace('@', '')
+        .replace('@', '')
+        .split('.');
       let val: any;
       switch (props.length) {
         case 1:
@@ -79,7 +95,10 @@ export class PrintTsplServiceProvider {
       }
       if (val !== undefined) {
         if (format.length > 1) {
-          let sets = format[1].trim().split(':');
+          let sets = format[1]
+            .replace('@', '')
+            .trim()
+            .split(':');
           switch (sets[0]) {
             case 'n':
             case 'N':
@@ -139,7 +158,7 @@ export class PrintTsplServiceProvider {
             fail => {
               console.error(`[3] Error conexión: ${JSON.stringify(fail)}`);
               reject('No se pudo conectar');
-            },
+            }
           );
         });
     });
@@ -235,7 +254,7 @@ export class PrintTsplServiceProvider {
 
   async buildFromWork(work: Work, entity: any = {}) {
     const loader = this.loadingCtrl.create({
-      content: `Construyendo el trabajo: ${work.name}...`,
+      content: `Construyendo el trabajo: ${work.name}...`
     });
     loader.present();
     cmd = '';
@@ -246,6 +265,12 @@ export class PrintTsplServiceProvider {
         for (let Ilbl = 0; Ilbl < work.labels.length; Ilbl++) {
           const label = work.labels[Ilbl];
 
+          if (label.Texts !== undefined) {
+            for (let item = 0; item < label.Texts.length; item++) {
+              const element = label.Texts[item];
+              await this.drawTextG(element, entity);
+            }
+          }
           if (label.images !== undefined) {
             for (let item = 0; item < label.images.length; item++) {
               const element = label.images[item];
@@ -269,13 +294,6 @@ export class PrintTsplServiceProvider {
             label.barcodes.forEach(async element => {
               await this.drawBarcode(element, entity);
             });
-          }
-
-          if (label.Texts !== undefined) {
-            for (let item = 0; item < label.Texts.length; item++) {
-              const element = label.Texts[item];
-              await this.drawTextG(element, entity);
-            }
           }
 
           if (label.Lines !== undefined) {
@@ -308,7 +326,7 @@ export class PrintTsplServiceProvider {
         loader.dismiss();
         const toast = this.toastCtrl.create({
           message: 'Error al construir el trabajo',
-          duration: 3000,
+          duration: 3000
         });
         toast.present();
         cmd = '';
@@ -328,7 +346,9 @@ export class PrintTsplServiceProvider {
     let val = this.dictionary(entity, barCodeConfig.value);
 
     return new Promise<PrintTsplServiceProvider>((resolve, reject) => {
-      cmd += `BARCODE ${barCodeConfig.x},${barCodeConfig.y},"${settings.codeType}",${barCodeConfig.height},${humanReadable_},${settings.rotation},${settings.narrow},${settings.wide},"${val}"${crlf}`;
+      cmd += `BARCODE ${barCodeConfig.x},${barCodeConfig.y},"${settings.codeType}",${
+        barCodeConfig.height
+      },${humanReadable_},${settings.rotation},${settings.narrow},${settings.wide},"${val}"${crlf}`;
       resolve(this);
     });
   }
@@ -348,7 +368,12 @@ export class PrintTsplServiceProvider {
 
     return new Promise<PrintTsplServiceProvider>((resolve, reject) => {
       const wt = new BrowserQRCodeSvgWriter(document.createElement('div'));
-      this.convertImageToTSPL('data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(wt.write(val, width, height))), qrConfig.x, qrConfig.y, 128)
+      this.convertImageToTSPL(
+        'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(wt.write(val, width, height))),
+        qrConfig.x,
+        qrConfig.y,
+        128
+      )
         .then(val => {
           cmd += `${val}${crlf}`;
           resolve(this);
@@ -367,7 +392,9 @@ export class PrintTsplServiceProvider {
 
   drawReverseZone(reverseZoneConfig: ReverseZoneItem) {
     return new Promise<PrintTsplServiceProvider>((resolve, reject) => {
-      cmd += `REVERSE ${reverseZoneConfig.x},${reverseZoneConfig.y},${reverseZoneConfig.width},${reverseZoneConfig.height}${crlf}`;
+      cmd += `REVERSE ${reverseZoneConfig.x},${reverseZoneConfig.y},${reverseZoneConfig.width},${
+        reverseZoneConfig.height
+      }${crlf}`;
       resolve(this);
     });
   }
@@ -387,7 +414,9 @@ export class PrintTsplServiceProvider {
     const defaults = { line_thickness: 1, radious: 0 };
     const settings = Object.assign(defaults, boxConfig.options);
     return new Promise<PrintTsplServiceProvider>((resolve, reject) => {
-      cmd += `BOX ${boxConfig.x},${boxConfig.y},${boxConfig.x + boxConfig.width},${boxConfig.y + boxConfig.height},${settings.line_thickness},${settings.radious}${crlf}`;
+      cmd += `BOX ${boxConfig.x},${boxConfig.y},${boxConfig.x + boxConfig.width},${boxConfig.y + boxConfig.height},${
+        settings.line_thickness
+      },${settings.radious}${crlf}`;
       resolve(this);
     });
   }
@@ -468,7 +497,7 @@ export class PrintTsplServiceProvider {
       .isEnabled()
       .then(() => {
         const loader = this.loadingCtrl.create({
-          content: 'Conectando e Imprimiendo, por favor espere...',
+          content: 'Conectando e Imprimiendo, por favor espere...'
         });
         loader.present();
         this.conectar(this.DeviceMAC)
@@ -482,7 +511,7 @@ export class PrintTsplServiceProvider {
             loader.dismiss();
             const toast = this.toastCtrl.create({
               message: 'No se pudo conectar a la impresora',
-              duration: 3000,
+              duration: 3000
             });
             toast.present();
           });
@@ -490,7 +519,7 @@ export class PrintTsplServiceProvider {
       .catch(() => {
         const toast = this.toastCtrl.create({
           message: 'Bluetooth no disponible o apagado',
-          duration: 3000,
+          duration: 3000
         });
         toast.present();
       });

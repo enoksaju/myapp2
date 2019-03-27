@@ -1,15 +1,17 @@
 import { Component, ViewChild } from '@angular/core';
-import { Nav, Platform } from 'ionic-angular';
+import { Nav, Platform, AlertController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
-import { ListPage } from '../pages/list/list';
+// import { ListPage } from '../pages/list/list';
 import { PrinterTestPage } from '../pages/printer-test/printer-test';
+import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+import { InventoryDatabaseProvider } from '../providers/inventory-database/inventory-database';
 
 @Component({
   templateUrl: 'app.html',
-  host: { '(document:keypress)': 'handleKeyboardEvent($event)' },
+  host: { '(document:keypress)': 'handleKeyboardEvent($event)' }
 })
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
@@ -18,10 +20,16 @@ export class MyApp {
 
   pages: Array<{ title: string; component: any }>;
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
+  constructor(
+    public platform: Platform,
+    public statusBar: StatusBar,
+    public splashScreen: SplashScreen,
+    private inv: InventoryDatabaseProvider,
+    private alertCtrl: AlertController
+  ) {
     this.initializeApp();
     // used for an example of ngFor and navigation
-    this.pages = [{ title: 'Home', component: HomePage }, { title: 'List', component: ListPage }, { title: 'printer', component: PrinterTestPage }];
+    this.pages = [{ title: 'Home', component: HomePage }, { title: 'printer', component: PrinterTestPage }];
   }
 
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -32,9 +40,33 @@ export class MyApp {
     this.platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      this.statusBar.styleDefault();
+      this.statusBar.hide();
       this.splashScreen.hide();
+      this.inv.initialiceDB();
     });
+  }
+
+  clearData() {
+    let alert = this.alertCtrl.create({
+      title: 'Confirmar Borrado',
+      message: 'Realmente desea reiniciar la base de datos?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Si, Borrar',
+          handler: () => {
+            this.inv.clearAllData();
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
   openPage(page) {

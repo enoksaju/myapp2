@@ -6,11 +6,146 @@
 -->
 <ion-header>
   <ion-navbar>
-    <button ion-button menuToggle><ion-icon name="menu"></ion-icon></button>
-    <ion-title>Printer test</ion-title>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-segment [(ngModel)]="page">
+      <ion-segment-button value="Form">
+        Captura
+      </ion-segment-button>
+      <ion-segment-button value="List">
+        Lista
+      </ion-segment-button>
+    </ion-segment>
+    <ion-buttons end>
+      <button ion-button (click)="saveFile()" icon-only color="secondary">
+        <ion-icon name="share"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  <button ion-button color="secondary" (click)="print()">Print</button>
+<ion-content no-padding>
+  <div [ngSwitch]="page" no-padding>
+    <form *ngSwitchCase="'Form'" #f="ngForm" (ngSubmit)="print()">
+      <ion-list></ion-list>
+      <ion-item>
+        <ion-label floating>Año</ion-label>
+        <ion-input
+          type="number"
+          name="year"
+          [(ngModel)]="year"
+          (ionChange)="changeValDate('year', year.toString())"
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Mes</ion-label>
+        <ion-select
+          name="month"
+          [(ngModel)]="month"
+          (ionChange)="changeValDate('month', month.toString())"
+          interface="popover"
+        >
+          <ion-option
+            *ngFor="
+              let mt of [
+                { v: 0, t: 'Enero' },
+                { v: 1, t: 'Febrero' },
+                { v: 2, t: 'Marzo' },
+                { v: 3, t: 'Abril' },
+                { v: 4, t: 'Mayo' },
+                { v: 5, t: 'Junio' },
+                { v: 6, t: 'Julio' },
+                { v: 7, t: 'Agosto' },
+                { v: 8, t: 'Septiembre' },
+                { v: 9, t: 'Octubre' },
+                { v: 10, t: 'Noviembre' },
+                { v: 11, t: 'Diciembre' }
+              ]
+            "
+            value="{{ mt.v }}"
+            >{{ mt.t }}</ion-option
+          >
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Linea</ion-label>
+        <ion-input
+          type="text"
+          name="line"
+          (ionChange)="changeValDate('line', line.toString())"
+          [(ngModel)]="line"
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Tipo</ion-label>
+        <ion-select name="tipo" [(ngModel)]="tipo" (ionChange)="changeValDate('tipo', tipo)" interface="popover">
+          <ion-option
+            *ngFor="let tp_ of ['Materia Prima', 'Material Impreso', 'Desperdicio', 'Solv-Adh', 'Material Ajuste']"
+            value="{{ tp_ }}"
+            >{{ tp_ }}</ion-option
+          >
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Tarima</ion-label>
+        <ion-input
+          type="number"
+          name="Pallet"
+          (ionChange)="saveOnly('pallet', pallet)"
+          [(ngModel)]="pallet"
+          value=""
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>OT</ion-label>
+        <ion-input type="text" name="OT" [(ngModel)]="toInsert.OT" value=""></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Material</ion-label>
+        <ion-input type="text" name="Material" [(ngModel)]="toInsert.Material" value=""></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Ancho</ion-label>
+        <ion-input type="number" name="Ancho" [(ngModel)]="toInsert.Ancho" value=""></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Calibre</ion-label>
+        <ion-input type="number" name="Calibre" [(ngModel)]="toInsert.Calibre" value=""></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label floating>Peso</ion-label>
+        <ion-input type="number" name="Peso" [(ngModel)]="toInsert.Peso" value=""></ion-input>
+      </ion-item>
+      <ion-item-divider color="light"></ion-item-divider>
+      <button ion-button type="button" block (click)="print()" icon-start>
+        <ion-icon name="print"></ion-icon>
+        Imprimir
+      </button>
+    </form>
+    <div *ngSwitchCase="'List'">
+      <ion-list>
+        <ion-item-sliding *ngFor="let rw of data">
+          <ion-item>
+            <h2>{{ rw.OT }}</h2>
+            <p>{{ rw.Material }} {{ rw.Ancho }}/{{ rw.Calibre }}</p>
+            <P>{{ rw.Tipo }} Tar:{{ rw.Tarima }}</P>
+            <h1 item-end>{{ rw.Peso }}</h1>
+          </ion-item>
+          <ion-item-options side="left">
+            <button ion-button color="primary" (click)="printExist(rw)">
+              <ion-icon name="print"></ion-icon>
+              Imprimir
+            </button>
+          </ion-item-options>
+          <ion-item-options side="right">
+            <button ion-button color="danger" (click)="delete(rw.Id)">
+              <ion-icon name="text"></ion-icon>
+              Borrar
+            </button>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+    </div>
+  </div>
 </ion-content>

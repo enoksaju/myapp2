@@ -15,12 +15,32 @@ import { PrinterTestPageModule } from '../pages/printer-test/printer-test.module
 import { OcomServiceProvider } from '../providers/ocom-service/ocom-service';
 import { PrintTsplServiceProvider } from '../providers/print-tspl-service/print-tspl-service';
 import { DatePipe, DecimalPipe, CurrencyPipe, PercentPipe } from '@angular/common';
+import { NumeralModule } from 'ngx-numeral';
+
+import { SQLite } from '@ionic-native/sqlite';
+import { InventoryDatabaseProvider } from '../providers/inventory-database/inventory-database';
+import { CsvService } from 'angular2-json2csv';
 
 @NgModule({
   declarations: [MyApp, HomePage, ListPage],
-  imports: [HttpModule, BrowserModule, PrinterTestPageModule, IonicModule.forRoot(MyApp)],
+  imports: [HttpModule, BrowserModule, PrinterTestPageModule, IonicModule.forRoot(MyApp), NumeralModule.forRoot()],
   bootstrap: [IonicApp],
   entryComponents: [MyApp, HomePage, ListPage],
-  providers: [StatusBar, Broadcaster, SplashScreen, Ocom, DatePipe, DecimalPipe, CurrencyPipe, PercentPipe, { provide: ErrorHandler, useClass: IonicErrorHandler }, OcomServiceProvider, PrintTsplServiceProvider],
+  providers: [
+    StatusBar,
+    SQLite,
+    Broadcaster,
+    SplashScreen,
+    Ocom,
+    DatePipe,
+    DecimalPipe,
+    CurrencyPipe,
+    PercentPipe,
+    CsvService,
+    { provide: ErrorHandler, useClass: IonicErrorHandler },
+    OcomServiceProvider,
+    PrintTsplServiceProvider,
+    InventoryDatabaseProvider
+  ]
 })
 export class AppModule {}
